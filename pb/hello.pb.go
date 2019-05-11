@@ -121,6 +121,40 @@ var fileDescriptor_a9e7dbd1dd38dde4 = []byte{
 	0x2a, 0x0c, 0x52, 0xa8, 0x00, 0x00, 0x00,
 }
 
+// Reference imports to suppress errors if they are not otherwise used.
+var _ context.Context
+var _ grpc.ClientConn
+
+// This is a compile-time assertion to ensure that this generated file
+// is compatible with the grpc package it is being compiled against.
+const _ = grpc.SupportPackageIsVersion4
+
+// Let's create the identity management client interface
+// These represent the gRPC procedures that we had in the sever.
+
+type HelloClient interface {
+	SayHello(ctx context.Context, in *MyTarget, opts ...grpc.CallOption) (*MyGreeting, error)
+}
+
+type simpleHelloClient struct {
+	connection *grpc.ClientConn
+}
+
+func NewSimpleHelloClient(connection *grpc.ClientConn) HelloClient {
+	return &simpleHelloClient{connection}
+}
+
+func (simpleClient *simpleHelloClient) SayHello(ctx context.Context, in *MyTarget, opts ...grpc.CallOption) (*MyGreeting, error) {
+	out := new(MyGreeting)
+	err := simpleClient.connection.Invoke(ctx, "/hello.Hello/SayHello", in, out, opts...)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return out, nil
+}
+
 // Let's create the identity management server interface
 // These represent the gRPC procedures that we had in the sever.
 

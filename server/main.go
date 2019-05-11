@@ -25,11 +25,13 @@ func (s *server) SayHello(ctx context.Context, req *pb.MyTarget) (*pb.MyGreeting
 }
 
 func main() {
-	lis, err := net.Listen("tcp", fmt.Sprintf("%v:%v", "localhost", "8080"))
+	myPort := 8080
+	lis, err := net.Listen("tcp", fmt.Sprintf("%v:%v", "localhost", myPort))
 	if err != nil {
 		log.Fatalf("Error listening %v", err)
 	}
 	grpcServer := grpc.NewServer()
 	pb.RegisterHelloServer(grpcServer, &server{})
 	grpcServer.Serve(lis)
+	log.Println(grpcServer)
 }
