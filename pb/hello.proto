@@ -1,0 +1,15 @@
+syntax="proto3";
+
+package hello;
+
+service Hello {
+    rpc SayHello (MyTarget) returns (MyGreeting) {}
+}
+
+message MyTarget {
+  string target = 1;
+}
+
+message MyGreeting {
+  string greeting = 1;
+}
