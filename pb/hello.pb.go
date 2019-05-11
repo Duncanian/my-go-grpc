@@ -4,10 +4,12 @@
 package hello
 
 import (
+	"context"
 	fmt "fmt"
 	math "math"
 
 	proto "github.com/golang/protobuf/proto"
+	"google.golang.org/grpc"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -117,4 +119,46 @@ var fileDescriptor_a9e7dbd1dd38dde4 = []byte{
 	0x11, 0x9c, 0x58, 0x09, 0x61, 0xf3, 0xeb, 0x81, 0xad, 0xd2, 0x83, 0xd9, 0x23, 0x25, 0x08, 0x17,
 	0x80, 0x19, 0xaa, 0xc4, 0x90, 0xc4, 0x06, 0x76, 0x96, 0x31, 0x20, 0x00, 0x00, 0xff, 0xff, 0xec,
 	0x2a, 0x0c, 0x52, 0xa8, 0x00, 0x00, 0x00,
+}
+
+// Let's create the identity management server interface
+// These represent the gRPC procedures that we had in the sever.
+
+type HelloServer interface {
+	SayHello(context.Context, *MyTarget) (*MyGreeting, error)
+}
+
+func RegisterHelloServer(s *grpc.Server, srv HelloServer) {
+	s.RegisterService(&_Hello_serviceDesc, srv)
+}
+
+func _Hello_SayHello_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MyTarget)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HelloServer).SayHello(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/hello.Hello/SayHello",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HelloServer).SayHello(ctx, req.(*MyTarget))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+var _Hello_serviceDesc = grpc.ServiceDesc{
+	ServiceName: "hello.Hello",
+	HandlerType: (*HelloServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "SayHello",
+			Handler:    _Hello_SayHello_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "pb/identity.proto",
 }
